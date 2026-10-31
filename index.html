@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#d32f2f">
+  <meta name="description" content="Petualangan Menuju Kemerdekaan Indonesia - Game Platformer 2D Edukasi Sejarah Kemerdekaan Indonesia">
+  <title>Petualangan Menuju Kemerdekaan Indonesia</title>
+  <link rel="stylesheet" href="src/styles.css">
+  <!-- Phaser 3 Game Engine (Local) -->
+  <script src="libs/phaser.min.js"></script>
+</head>
+<body>
+  <div id="app-root">
+
+    <!-- Area Permainan Canvas Phaser -->
+    <div id="game-container"></div>
+
+    <!-- HUD Atas (Informasi Permainan) -->
+    <div id="game-hud">
+      <div class="hud-panel">
+        <div class="hud-pill level-pill" id="hud-level-name">Level 1: Awal Perjuangan</div>
+        <div class="hud-pill">🏆 Skor: <span id="hud-score">0</span></div>
+        <div class="hud-pill">🪙 <span id="hud-coins">0</span></div>
+        <div class="hud-pill">Nyawa: <span id="hud-lives">❤️❤️❤️</span></div>
+        <div class="hud-pill" id="hud-quiz-status">Kuis: <span style="color:#d32f2f">❓ Cari Blok</span></div>
+      </div>
+      <div class="hud-panel">
+        <button id="btn-hud-pause" class="hud-btn" title="Jeda Permainan">⏸️ Jeda</button>
+        <button id="btn-hud-home" class="hud-btn" title="Kembali ke Menu">🏠 Menu</button>
+      </div>
+    </div>
+
+    <!-- Tombol Virtual Mobile Touch Controls -->
+    <div id="mobile-controls">
+      <div class="touch-cluster-left">
+        <button id="btn-touch-left" class="touch-btn" aria-label="Gerak Kiri">◀</button>
+        <button id="btn-touch-right" class="touch-btn" aria-label="Gerak Kanan">▶</button>
+      </div>
+      <div class="touch-cluster-right">
+        <button id="btn-touch-attack" class="touch-btn attack-btn" aria-label="Serang">SERANG<br>⚔️</button>
+        <button id="btn-touch-jump" class="touch-btn jump-btn" aria-label="Lompat">LOMPAT<br>🦘</button>
+      </div>
+    </div>
+
+    <!-- ======================================================================
+         MODAL & LAYAR ANTARMUKA
+         ====================================================================== -->
+
+    <!-- A. HALAMAN PEMBUKA (START SCREEN) -->
+    <div id="screen-start" class="overlay-screen">
+      <div class="modal-card">
+        <div class="hero-banner">
+          <div class="flag-badge">🇮🇩 17 AGUSTUS 1945 🇮🇩</div>
+          <h1 class="game-title">Petualangan Menuju Kemerdekaan Indonesia</h1>
+          <p class="game-subtitle">
+            Jelajahi 5 level sejarah perjuangan kemerdekaan, taklukkan rintangan,
+            kumpulkan koin emas, jawab kuis sejarah, dan cetak piagam kemenanganmu!
+          </p>
+          <div class="hero-avatar-preview">🚩</div>
+        </div>
+
+        <div class="menu-actions">
+          <button id="btn-start-game" class="btn-primary">🎮 Mulai Bermain</button>
+          <button id="btn-how-to-play" class="btn-secondary">📖 Cara Bermain & Kontrol</button>
+          <button id="btn-about" class="btn-secondary">ℹ️ Tentang Game</button>
+          <div>
+            <button id="btn-toggle-audio" class="audio-toggle-btn">🔊 Suara: Nyala</button>
+          </div>
+        </div>
+
+        <div class="menu-footer-info">
+          5 Level Bersejarah • 5 Kuis Kemerdekaan • Fitur Foto Piagam Penghargaan
+        </div>
+      </div>
+    </div>
+
+    <!-- B. MODAL CARA BERMAIN -->
+    <div id="modal-how-to-play" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon">📖 Panduan & Kontrol Permainan</div>
+        
+        <div style="text-align: left; margin: 16px 0; line-height: 1.6; font-size: 14px;">
+          <h4 style="color: var(--merah-utama); margin-bottom: 6px;">⌨️ Kontrol Keyboard (Desktop):</h4>
+          <ul style="margin-left: 20px; margin-bottom: 14px;">
+            <li><strong>A / Panah Kiri:</strong> Bergerak ke kiri</li>
+            <li><strong>D / Panah Kanan:</strong> Bergerak ke kanan</li>
+            <li><strong>W / Spasi / Panah Atas:</strong> Melompat</li>
+            <li><strong>J / F / Z:</strong> Serang musuh dengan Bambu Runcing ⚔️</li>
+            <li><strong>ESC / P:</strong> Jeda permainan</li>
+          </ul>
+
+          <h4 style="color: var(--merah-utama); margin-bottom: 6px;">📱 Kontrol Sentuh (Smartphone / Tablet):</h4>
+          <ul style="margin-left: 20px; margin-bottom: 14px;">
+            <li>Gunakan tombol <strong>◀</strong> dan <strong>▶</strong> di sisi kiri untuk bergerak.</li>
+            <li>Tekan tombol merah <strong>⚔️ SERANG</strong> untuk menusuk musuh dengan Bambu Runcing.</li>
+            <li>Tekan tombol besar <strong>🦘 LOMPAT</strong> untuk melompat (atau menginjak musuh dari atas).</li>
+          </ul>
+
+          <h4 style="color: var(--merah-utama); margin-bottom: 6px;">🎯 Misi & Aturan Permainan:</h4>
+          <ol style="margin-left: 20px;">
+            <li>Kumpulkan <strong>koin emas (+10 poin)</strong> di sepanjang lintasan.</li>
+            <li>Pukul blok pertanyaan <strong>[ ? ]</strong> untuk membuka kuis sejarah kemerdekaan.</li>
+            <li>Jawab kuis dengan tepat untuk <strong>membuka gerbang (+100 poin)</strong> dan melaju ke level berikutnya!</li>
+            <li>Kalahkan musuh patroli biasa (+30 poin) dan musuh lapis baja (+50 poin) dengan tusukan Bambu Runcing.</li>
+            <li>Waspadai duri bambu runcing dan jurang berbahaya.</li>
+            <li>Selesaikan <strong>seluruh 5 level</strong> untuk membuka Gerbang Kemerdekaan Agung dan membuat <strong>Piagam Foto Pahlawan</strong>!</li>
+          </ol>
+        </div>
+
+        <button id="btn-close-how-to" class="btn-primary" style="width: 100%;">Mengerti & Tutup</button>
+      </div>
+    </div>
+
+    <!-- C. MODAL TENTANG GAME -->
+    <div id="modal-about" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon">ℹ️ Tentang Game Edukasi</div>
+        
+        <div style="text-align: left; margin: 16px 0; line-height: 1.6; font-size: 14px; color: #37474f;">
+          <p style="margin-bottom: 10px;">
+            <strong>Petualangan Menuju Kemerdekaan Indonesia</strong> adalah game platformer edukasi 2D interaktif yang dirancang untuk mengenalkan peristiwa-peristiwa penting menjelang dan saat Proklamasi Kemerdekaan Indonesia 17 Agustus 1945.
+          </p>
+          <p style="margin-bottom: 10px;">
+            <strong>Fitur Unggulan:</strong>
+          </p>
+          <ul style="margin-left: 20px; margin-bottom: 12px;">
+            <li>Aset visual, karakter, dan identitas 100% orisinal bernuansa Merah Putih.</li>
+            <li>5 Level tematik dengan rintangan bertahap.</li>
+            <li>5 Kuis fakta sejarah tervalidasi dengan umpan balik edukatif.</li>
+            <li>Kamera lokal WebRTC & Generator Piagam Kemenangan resolusi tinggi.</li>
+            <li>Dapat dimainkan di desktop maupun smartphone.</li>
+          </ul>
+        </div>
+
+        <button id="btn-close-about" class="btn-primary" style="width: 100%;">Tutup</button>
+      </div>
+    </div>
+
+    <!-- D. MODAL JEDA (PAUSE) -->
+    <div id="modal-pause" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon">⏸️ Permainan Dijeda</div>
+        <p style="margin: 14px 0 20px; color: #546e7a;">Permainan dan waktu dihentikan sementara.</p>
+        <div class="menu-actions">
+          <button id="btn-pause-resume" class="btn-primary">▶️ Lanjutkan</button>
+          <button id="btn-pause-restart" class="btn-secondary">🔄 Ulangi Level Ini</button>
+          <button id="btn-pause-home" class="btn-secondary">🏠 Kembali ke Menu Utama</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- KONFIRMASI KEMBALI KE MENU -->
+    <div id="modal-confirm-home" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon">⚠️ Konfirmasi Keluar</div>
+        <p style="margin: 16px 0 20px; color: #37474f; font-size: 15px;">
+          Yakin ingin kembali ke menu utama? Progres level saat ini akan diulang dari awal level.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center;">
+          <button id="btn-confirm-home-yes" class="btn-primary" style="background:#b71c1c;">Ya, Keluar</button>
+          <button id="btn-confirm-home-no" class="btn-secondary">Batal & Lanjutkan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div id="modal-game-over" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon" style="background: #212121; border-color: #d32f2f;">☠️ Nyawa Habis!</div>
+        <p style="margin: 16px 0 20px; color: #d32f2f; font-size: 16px; font-weight: 700;">
+          Jangan menyerah! Para pejuang kemerdekaan pantang berputus asa.
+        </p>
+        <div class="menu-actions">
+          <button id="btn-game-over-retry" class="btn-primary">🔄 Coba Lagi Level Ini</button>
+          <button id="btn-game-over-home" class="btn-secondary">🏠 Menu Utama</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- E. MODAL KUIS SEJARAH INTERAKTIF -->
+    <div id="modal-quiz" class="overlay-screen">
+      <div class="modal-card">
+        <div class="quiz-header">
+          <div class="quiz-title" id="quiz-title">Level 1: Kuis Kemerdekaan</div>
+          <div class="quiz-question" id="quiz-question">Kapan Indonesia memproklamasikan kemerdekaan?</div>
+        </div>
+
+        <div class="quiz-options" id="quiz-options">
+          <!-- Tombol opsi pilihan ganda A, B, C dibuat secara dinamis -->
+        </div>
+
+        <div id="quiz-feedback" class="quiz-feedback"></div>
+
+        <div style="text-align: right; margin-top: 14px;">
+          <button id="btn-quiz-continue" class="btn-primary" style="display: none;">
+            Lanjutkan Petualangan ➡️
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- F. HALAMAN KEMENANGAN (VICTORY SCREEN SETELAH LEVEL 5) -->
+    <div id="screen-victory" class="overlay-screen">
+      <div class="modal-card">
+        <div class="victory-banner">
+          <h2 class="victory-title">🎉 MERDEKA! KAMU BERHASIL! 🎉</h2>
+          <p class="victory-sub">
+            Selamat, kamu telah menuntaskan seluruh 5 level petualangan sejarah kemerdekaan Indonesia!
+          </p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">🏆 TOTAL SKOR</div>
+            <div class="stat-val" id="victory-stat-score">0 Poin</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">🪙 KOIN TERKUMPUL</div>
+            <div class="stat-val" id="victory-stat-coins">0 Koin</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">📚 KUIS SEJARAH</div>
+            <div class="stat-val" id="victory-stat-quizzes">5/5 Soal</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">⏱️ WAKTU SELESAI</div>
+            <div class="stat-val" id="victory-stat-time">00:00</div>
+          </div>
+        </div>
+
+        <!-- Pratinjau Piagam Kemenangan -->
+        <div id="victory-certificate-preview" class="certificate-preview-box">
+          <img id="img-certificate-preview" alt="Pratinjau Piagam Kemenangan">
+        </div>
+
+        <div class="victory-actions">
+          <button id="btn-victory-photo" class="btn-primary">
+            📷 Ambil Foto Kemenangan & Buat Piagam
+          </button>
+          <button id="btn-download-certificate" class="btn-primary" style="background:#2e7d32; display: none;">
+            📥 Unduh Piagam Kemenangan (PNG)
+          </button>
+          <div style="display: flex; gap: 10px; margin-top: 6px;">
+            <button id="btn-victory-play-again" class="btn-secondary" style="flex:1;">🔄 Main Lagi</button>
+            <button id="btn-victory-home" class="btn-secondary" style="flex:1;">🏠 Menu Utama</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- G. MODAL KAMERA & PENGAMBILAN FOTO -->
+    <div id="modal-camera" class="overlay-screen">
+      <div class="modal-card">
+        <div class="modal-header-ribbon">📷 Foto Pahlawan Kemerdekaan</div>
+
+        <p style="font-size: 13px; color: #546e7a; margin: 10px 0;">
+          Foto diproses <strong>hanya di perangkat lokal Anda</strong> untuk dicetak ke dalam Piagam Kemenangan.
+          Foto tidak disimpan di server mana pun.
+        </p>
+
+        <!-- Input Nama Pahlawan -->
+        <input type="text" id="input-player-name" class="input-name-field" placeholder="Ketik Namamu (Contoh: Budi Santoso)" maxlength="32">
+
+        <div id="camera-message" class="camera-msg info">
+          Klik "Buka Kamera" untuk mengizinkan akses kamera lokal di perangkat Anda.
+        </div>
+
+        <div id="camera-preview-area" class="camera-preview-container">
+          <video id="camera-video" playsinline autoplay muted style="display: none;"></video>
+        </div>
+
+        <div class="camera-buttons">
+          <button id="btn-camera-start" class="btn-primary">📸 Buka Kamera</button>
+          <button id="btn-camera-snap" class="btn-primary" style="display: none;">⏺️ Jepret Foto</button>
+          <button id="btn-camera-retake" class="btn-secondary" style="display: none;">🔄 Foto Ulang</button>
+          <button id="btn-camera-use" class="btn-primary" style="background:#2e7d32; display: none;">✅ Gunakan Foto Ini</button>
+          <button id="btn-camera-use-avatar" class="btn-secondary">Gunakan Avatar Pejuang</button>
+          <button id="btn-close-camera" class="btn-secondary">Batal / Tutup</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Entry Point Aplikasi (ES Modules) -->
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
+

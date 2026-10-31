@@ -1,0 +1,664 @@
+/* ==========================================================================
+   Petualangan Menuju Kemerdekaan Indonesia - Stylesheet
+   Gaya visual modern, ceria, patriotik Merah Putih, dan responsif desktop/mobile.
+   ========================================================================== */
+
+:root {
+  --merah-utama: #d32f2f;
+  --merah-gelap: #b71c1c;
+  --merah-terang: #ef5350;
+  --putih-bersih: #ffffff;
+  --krem-piagam: #fffdf9;
+  --emas-utama: #ffb300;
+  --emas-terang: #ffd54f;
+  --hijau-sukses: #2e7d32;
+  --gelap-teks: #212121;
+  --abu-border: #cfd8dc;
+  --font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #1a237e;
+  font-family: var(--font-family);
+  color: var(--gelap-teks);
+}
+
+#app-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, #1e88e5 0%, #0d47a1 100%);
+}
+
+/* Container game Phaser */
+#game-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   HUD (Heads-Up Display)
+   ========================================================================== */
+#game-hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 20;
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+
+.hud-panel {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.hud-pill {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  border: 2px solid var(--merah-utama);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hud-pill.level-pill {
+  background: var(--merah-utama);
+  color: #fff;
+  border-color: #fff;
+}
+
+.hud-btn {
+  background: var(--merah-utama);
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: transform 0.1s, background 0.2s;
+  pointer-events: auto;
+}
+
+.hud-btn:hover {
+  background: var(--merah-gelap);
+  transform: translateY(-1px);
+}
+.hud-btn:active {
+  transform: translateY(1px);
+}
+
+/* ==========================================================================
+   KONTROL SENTUH VIRTUAL (MOBILE TOUCH)
+   ========================================================================== */
+#mobile-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  z-index: 25;
+  display: none;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.touch-cluster-left,
+.touch-cluster-right {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.touch-btn {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 3px solid var(--merah-utama);
+  font-size: 24px;
+  font-weight: 900;
+  color: var(--merah-gelap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  touch-action: none;
+  transition: transform 0.08s, background 0.1s;
+}
+
+.touch-btn:active {
+  transform: scale(0.92);
+  background: var(--emas-terang);
+  border-color: var(--merah-gelap);
+}
+
+.touch-btn.jump-btn {
+  width: 74px;
+  height: 74px;
+  background: var(--merah-utama);
+  color: #fff;
+  border-color: #fff;
+  font-size: 15px;
+}
+.touch-btn.jump-btn:active {
+  background: var(--merah-gelap);
+}
+
+.touch-btn.attack-btn {
+  width: 66px;
+  height: 66px;
+  background: linear-gradient(135deg, #ffd54f 0%, #ff8f00 100%);
+  color: #b71c1c;
+  border-color: #b71c1c;
+  font-size: 13px;
+  font-weight: 900;
+}
+.touch-btn.attack-btn:active {
+  background: #ff6f00;
+  color: #fff;
+}
+
+/* ==========================================================================
+   MODAL & OVERLAY UMUM
+   ========================================================================== */
+.overlay-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 50;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 20, 40, 0.75);
+  backdrop-filter: blur(5px);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.modal-card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  max-width: 520px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+  border: 4px solid var(--merah-utama);
+  text-align: center;
+  animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header-ribbon {
+  background: var(--merah-utama);
+  color: #fff;
+  margin: -24px -28px 18px -28px;
+  padding: 14px 20px;
+  border-radius: 12px 12px 0 0;
+  border-bottom: 3px solid var(--emas-utama);
+  font-size: 20px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   HALAMAN PEMBUKA (START SCREEN)
+   ========================================================================== */
+#screen-start .modal-card {
+  max-width: 580px;
+  padding: 30px;
+}
+
+.hero-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.flag-badge {
+  display: inline-block;
+  padding: 4px 16px;
+  border-radius: 14px;
+  background: #f5f5f5;
+  border: 1px solid #ccc;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--merah-utama);
+}
+
+.game-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--merah-gelap);
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.game-subtitle {
+  font-size: 15px;
+  color: #546e7a;
+  max-width: 440px;
+}
+
+.hero-avatar-preview {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: #ffebee;
+  border: 4px solid var(--merah-utama);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 42px;
+  margin: 10px 0;
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.25);
+}
+
+.menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #ef5350 0%, #d32f2f 100%);
+  color: #fff;
+  border: 2px solid #fff;
+  padding: 14px 24px;
+  border-radius: 28px;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(211, 47, 47, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(211, 47, 47, 0.45);
+}
+
+.btn-secondary {
+  background: #f5f5f5;
+  color: #37474f;
+  border: 2px solid var(--abu-border);
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+}
+
+.btn-secondary:hover {
+  background: #e0e0e0;
+  transform: translateY(-1px);
+}
+
+.menu-footer-info {
+  margin-top: 18px;
+  font-size: 12px;
+  color: #78909c;
+}
+
+/* ==========================================================================
+   PANEL KUIS SEJARAH
+   ========================================================================== */
+#modal-quiz .modal-card {
+  max-width: 600px;
+  text-align: left;
+}
+
+.quiz-header {
+  border-bottom: 2px solid #eee;
+  padding-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.quiz-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--merah-utama);
+  text-transform: uppercase;
+}
+
+.quiz-question {
+  font-size: 20px;
+  font-weight: 800;
+  color: #212121;
+  margin-top: 6px;
+  line-height: 1.35;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.quiz-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f8f9fa;
+  border: 2px solid #cfd8dc;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #37474f;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+  border-color: var(--merah-utama);
+  background: #ffebee;
+  transform: translateX(4px);
+}
+
+.quiz-option-btn .opt-badge {
+  background: var(--merah-utama);
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.quiz-option-btn.correct {
+  border-color: var(--hijau-sukses);
+  background: #e8f5e9;
+  color: var(--hijau-sukses);
+}
+.quiz-option-btn.correct .opt-badge {
+  background: var(--hijau-sukses);
+}
+
+.quiz-option-btn.wrong {
+  border-color: var(--merah-utama);
+  background: #ffebee;
+  animation: shake 0.35s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+.quiz-feedback {
+  display: none;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 14px;
+}
+
+.feedback-success {
+  background: #e8f5e9;
+  color: #1b5e20;
+  border-left: 5px solid var(--hijau-sukses);
+}
+
+.feedback-error {
+  background: #fff3e0;
+  color: #e65100;
+  border-left: 5px solid #ff9800;
+}
+
+/* ==========================================================================
+   HALAMAN KEMENANGAN (VICTORY SCREEN)
+   ========================================================================== */
+#screen-victory .modal-card {
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.victory-banner {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+  color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 18px;
+  border: 2px solid var(--emas-utama);
+}
+
+.victory-title {
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.victory-sub {
+  font-size: 14px;
+  opacity: 0.95;
+  margin-top: 4px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #78909c;
+  font-weight: 600;
+}
+
+.stat-val {
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--merah-gelap);
+  margin-top: 2px;
+}
+
+.certificate-preview-box {
+  display: none;
+  margin: 16px 0;
+  border: 3px solid var(--emas-utama);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+.certificate-preview-box img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.victory-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ==========================================================================
+   MODAL KAMERA & PEMBUATAN PIAGAM
+   ========================================================================== */
+#modal-camera .modal-card {
+  max-width: 500px;
+}
+
+.camera-preview-container {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  margin: 14px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--merah-utama);
+}
+
+.camera-preview-container video,
+.camera-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-preview-container video {
+  transform: scaleX(-1); /* Cermin selfie */
+}
+
+.camera-msg {
+  font-size: 13px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+.camera-msg.info { background: #e1f5fe; color: #0277bd; }
+.camera-msg.success { background: #e8f5e9; color: #2e7d32; }
+.camera-msg.warning { background: #fff3e0; color: #e65100; }
+
+.input-name-field {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--abu-border);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #212121;
+  outline: none;
+  margin-bottom: 14px;
+}
+.input-name-field:focus {
+  border-color: var(--merah-utama);
+  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2);
+}
+
+.camera-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   TOMBOL SUARA MUTE/UNMUTE
+   ========================================================================== */
+.audio-toggle-btn {
+  background: #fff;
+  border: 2px solid var(--merah-utama);
+  color: var(--merah-utama);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.audio-toggle-btn.muted {
+  border-color: #90a4ae;
+  color: #78909c;
+  background: #eceff1;
+}
+
+/* Responsif Layar Kecil / Mobile */
+@media (max-width: 600px) {
+  .game-title {
+    font-size: 22px;
+  }
+  .modal-card {
+    padding: 18px;
+  }
+  .touch-btn {
+    width: 54px;
+    height: 54px;
+    font-size: 20px;
+  }
+  .touch-btn.jump-btn {
+    width: 64px;
+    height: 64px;
+    font-size: 13px;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
